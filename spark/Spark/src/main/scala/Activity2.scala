@@ -1,36 +1,16 @@
 package fr.umontpellier.polytech
 
 import org.apache.spark.sql.SparkSession
-import com.amazonaws.SDKGlobalConfiguration
+import org.apache.spark.SparkFiles
 import org.apache.spark.sql.functions.collect_list
 
 object Activity2 {
-  private def helper(endpoint: String): SparkSession = {
-    System.setProperty(SDKGlobalConfiguration.DISABLE_CERT_CHECKING_SYSTEM_PROPERTY, "true")
-
-    val user = "minio"
-    val password = "minio123"
-
-    SparkSession.builder()
-      .appName("MinIOActivity2")
-      .master("local[*]")
-      .config("spark.hadoop.fs.s3a.endpoint", endpoint)
-      .config("spark.hadoop.fs.s3a.access.key", user)
-      .config("spark.hadoop.fs.s3a.secret.key", password)
-      .config("spark.hadoop.fs.s3a.path.style.access", "true")
-      .config("spark.hadoop.fs.s3a.connection.timeout", "100000")
-      .getOrCreate()
-  }
-
-  private def processCSV(spark: SparkSession): Unit = {
-
-    val path = "s3a://mybucket/users.csv"
-
+  private def processCSV(spark: SparkSession, name: String): Unit = {
     import spark.implicits._
     val users = spark.read
       .option("header", "true")
       .option("inferSchema", "true")
-      .csv(path)
+      .csv(s"file:///${SparkFiles.get(name)}")
 
     val result = users
       .filter($"age" >= 25)
@@ -47,16 +27,18 @@ object Activity2 {
   }
 
   def main(args: Array[String]): Unit = {
-    var endpoint = "https://minio.s3.svc.cluster.local:9000/"
-    if (args.length > 0)
-      endpoint = args(0)
+    if (args.length < 1) {
+      println("Needs to provide the filename")
+      System.exit(1)
+    }
 
-    println(s"Using endpoint: $endpoint")
+    val filename = args(0)
+    val spark = SparkSession.builder()
+      .appName("MinIOActivity2")
+      .master("local[*]")
+      .getOrCreate()
 
-    val spark = helper(endpoint)
-
-    processCSV(spark)
-
+    processCSV(spark, filename)
     spark.stop()
   }
 }

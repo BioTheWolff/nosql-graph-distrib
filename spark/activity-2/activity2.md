@@ -46,7 +46,7 @@ kubectl port-forward svc/myminio-hl 9000 -n s3
 
 Setting up the tenant (assuming usage of MinIO client):
 ```sh
-mc alias set myminio https://localhost:9000 minio minio123 --insecure
+mc alias set myminio http://localhost:9000 minio minio123 --insecure
 mc mb myminio/mybucket --insecure
 mcli anonymous set download myminio/mybucket --insecure
 ```
