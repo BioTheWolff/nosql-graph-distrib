@@ -48,7 +48,7 @@ Setting up the tenant (assuming usage of MinIO client):
 ```sh
 mc alias set myminio http://localhost:9000 minio minio123 --insecure
 mc mb myminio/mybucket --insecure
-mcli anonymous set download myminio/mybucket --insecure
+mc anonymous set download myminio/mybucket --insecure
 ```
 
 ## Running the program
