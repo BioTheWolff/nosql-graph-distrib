@@ -5,8 +5,6 @@ import org.apache.spark.sql.functions.{avg, col, collect_list, from_csv}
 import org.apache.spark.sql.streaming.Trigger
 import org.apache.spark.sql.types.{IntegerType, StringType, StructType}
 
-import java.util
-
 
 object Activity7Kafka {
 
@@ -16,15 +14,16 @@ object Activity7Kafka {
     .add("age", IntegerType, nullable = true)
     .add("city", StringType, nullable = true)
 
-  private def helper(): SparkSession = {
-    SparkSession.builder()
+  def main(args: Array[String]): Unit = {
+    var server = "localhost:9092"
+    if (args.length >= 1) {
+      server = args(0)
+    }
+
+    val spark = SparkSession.builder()
       .appName("UserStreamingKafka")
       .master("local[*]")
       .getOrCreate()
-  }
-
-  def main(args: Array[String]): Unit = {
-    val spark = helper()
     spark.sparkContext.setLogLevel("ERROR")
 
     import spark.implicits._
@@ -34,7 +33,7 @@ object Activity7Kafka {
     val raw = spark
       .readStream
       .format("kafka")
-      .option("kafka.bootstrap.servers", "localhost:9092")
+      .option("kafka.bootstrap.servers", server)
       .option("subscribePattern", "streaming.*")
       .option("kafka.group.id", "spark-streaming")
       .load()
