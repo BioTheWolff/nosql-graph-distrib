@@ -1,6 +1,8 @@
 
 # Activity 3: Spark Streaming
 
+*NB: in this activity, all CSV lines are expected to be WITHOUT headers. So please don't include headers in your csv files in S3, and don't send the headers in Kafka*
+
 ## Install Strimzi
 
 Install the operator:
@@ -24,7 +26,6 @@ kubectl -n kafka run kafka-producer -ti --image=quay.io/strimzi/kafka:0.45.0-kaf
 
 The expected CSV is the users CSV that was previously used:
 ```csv
-id,name,age,city
 1,P1,28,New York
 2,P2,22,San Francisco
 3,P3,30,New York
